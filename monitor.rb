@@ -25,14 +25,16 @@ w_data = YAML.load_file( 'watcher.yaml' )
 
 # CAUTION : sites addresses should not be https
 File.open( 'sites.txt' ).readlines.each do |site|
-  uri = URI.parse(site + '/monitoring/show' )
+  url = site.strip + '/monitoring/show'
+ # p url
+  uri = URI.parse( url )
   http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = true
+#  http.use_ssl = true
 
   request = Net::HTTP::Get.new(uri.request_uri)
   res = http.request(request)
 
-  puts "#{site} : #{res.code}"
+#  puts "#{site} : #{res.code}"
 
   unless [ '200', '401' ].include?( res.code )
     send_warning_email( site, w_data )
