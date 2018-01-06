@@ -21,8 +21,9 @@ end
 
 w_data = YAML.load_file( 'watcher.yaml' )
 
+# CAUTION : sites addresses should not be https
 File.open( 'sites.txt' ).readlines.each do |site|
-  uri = URI.parse(site)
+  uri = URI.parse(site + '/monitoring/show' )
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
 
