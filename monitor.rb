@@ -4,14 +4,14 @@ require 'net/smtp'
 
 def send_warning_email( sitename )
   message = <<MESSAGE_END
-From: Private Person <me@fromdomain.com>
-To: A Test User <test@todomain.com>
+From: <webapp@trac.deadzed.net>
+To: <zuger.cedric@gmail.com>
 Subject: SMTP e-mail test
 
 This is a test e-mail message.
 MESSAGE_END
 
-  Net::SMTP.start('localhost') do |smtp|
+  Net::SMTP.start('127.0.0.1') do |smtp|
     File.open( 'watchers.txt' ).readlines.each do |watcher|
       p watcher
       smtp.send_message message, 'webapp@trac.deadzed.net', watcher
