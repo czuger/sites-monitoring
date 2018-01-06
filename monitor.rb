@@ -28,6 +28,8 @@ File.open( 'sites.txt' ).readlines.each do |site|
   request = Net::HTTP::Get.new(uri.request_uri)
   res = http.request(request)
 
+  puts "#{site} : #{res.code}"
+
   unless [ 200, 401 ].include?( res.code )
     send_warning_email( site )
   end
