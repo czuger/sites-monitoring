@@ -51,4 +51,4 @@ build-iPhoneSimulator/
 
 .idea
 sites.txt
-watchers.txt
+watcher.yaml

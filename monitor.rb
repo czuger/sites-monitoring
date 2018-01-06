@@ -1,25 +1,25 @@
 require 'net/https'
 require 'uri'
 require 'net/smtp'
+require 'yaml'
 
-def send_warning_email( sitename )
+def send_warning_email( sitename, w_data )
   message = <<MESSAGE_END
-From: <webapp@trac.deadzed.net>
-To: <zuger.cedric@gmail.com>
-Subject: SMTP e-mail test
+From: <#{w_data[:sender]}>
+To: <#{w_data[:watcher]}>
+Subject: Site failure
 
-This is a test e-mail message.
+#{sitename} n'est plus accessible.
 MESSAGE_END
 
   Net::SMTP.start('127.0.0.1') do |smtp|
-    File.open( 'watchers.txt' ).readlines.each do |watcher|
-      p watcher
-      smtp.send_message message, 'webapp@trac.deadzed.net', watcher
-    end
+    smtp.send_message message, w_data[:sender], w_data[:watcher]
   end
 end
 
-send_warning_email( 'test' )
+# send_warning_email( 'test' )
+
+w_data = YAML.load_file( 'watcher.yaml' )
 
 File.open( 'sites.txt' ).readlines.each do |site|
   uri = URI.parse(site)
@@ -32,7 +32,7 @@ File.open( 'sites.txt' ).readlines.each do |site|
   puts "#{site} : #{res.code}"
 
   unless [ 200, 401 ].include?( res.code )
-    send_warning_email( site )
+    send_warning_email( site, w_data )
   end
 
 end
