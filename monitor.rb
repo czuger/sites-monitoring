@@ -12,9 +12,10 @@ This is a test e-mail message.
 MESSAGE_END
 
   Net::SMTP.start('localhost') do |smtp|
-    watchers = File.open( 'watchers.txt' ).readlines
-    p watchers
-    smtp.send_message message, watchers
+    File.open( 'watchers.txt' ).readlines.each do |watcher|
+      p watcher
+      smtp.send_message message, 'webapp@trac.deadzed.net', watcher
+    end
   end
 end
 
