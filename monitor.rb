@@ -1,18 +1,19 @@
 require 'net/https'
-require 'uri'
+require 'open-uri'
 require 'net/smtp'
 require 'yaml'
 
-def send_warning_email( sitename, w_data )
+def send_warning_email( sitename, w_data, error )
   message = <<MESSAGE_END
 From: <#{w_data['sender']}>
 To: <#{w_data['dest']}>
 Subject: Site failure
 
 #{sitename} n'est plus accessible.
-MESSAGE_END
 
-p w_data, message
+#{error.to_s}
+
+MESSAGE_END
 
   Net::SMTP.start('127.0.0.1') do |smtp|
     smtp.send_message message, w_data['sender'], w_data['dest']
@@ -25,19 +26,17 @@ w_data = YAML.load_file( 'watcher.yaml' )
 
 # CAUTION : sites addresses should not be https
 File.open( 'sites.txt' ).readlines.each do |site|
-  url = site.strip + '/monitoring/show'
- # p url
-  uri = URI.parse( url )
-  http = Net::HTTP.new(uri.host, uri.port)
-#  http.use_ssl = true
+  url, login, password = site.strip.split
 
-  request = Net::HTTP::Get.new(uri.request_uri)
-  res = http.request(request)
+  read_params = {}
+  if login && password
+    read_params = { http_basic_authentication: [ login, password ] }
+  end
 
-#  puts "#{site} : #{res.code}"
-
-  unless [ '200', '401' ].include?( res.code )
-    send_warning_email( site, w_data )
+  begin
+    @data = URI.parse(url ).read( read_params )
+  rescue => e
+    send_warning_email( url, w_data, e )
   end
 
 end
